@@ -1,0 +1,14 @@
+type: object
+properties:
+  page:
+    type: integer
+    description: Current page number
+  limit:
+    type: integer
+    description: Number of results per page
+  total:
+    type: integer
+    description: Total number of results
+  total_pages:
+    type: integer
+    description: Total number of pages

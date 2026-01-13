@@ -14,5 +14,6 @@ jobs:
       - name: Upload OpenAPI spec
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload reference/API/openapi.yaml --key=${{ secrets.README_API_KEY }}
+          rdme: openapi upload reference/API/openapi.yaml --slug=core-api --key=${{ secrets.README_API_KEY }}
+
 

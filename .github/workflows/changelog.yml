@@ -14,31 +14,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: readmeio/rdme@v10
+      - uses: actions/setup-node@v4
         with:
-          rdme: --version
+          node-version: 20
 
+      - name: Install rdme
+        run: npm i -g rdme@10
 
       - name: Upload only changed changelog files
-        uses: readmeio/rdme@v10
         env:
           README_API_KEY: ${{ secrets.README_API_KEY }}
-        with:
-          rdme: |
-            bash -lc '
-              set -euo pipefail
+        run: |
+          set -euo pipefail
 
-              git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" \
-                | grep "^changelog/.*\.md$" > /tmp/changed_files.txt || true
+          git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" \
+            | grep "^changelog/.*\.md$" > /tmp/changed_files.txt || true
 
-              if [ ! -s /tmp/changed_files.txt ]; then
-                echo "No changelog markdown files changed."
-                exit 0
-              fi
+          if [ ! -s /tmp/changed_files.txt ]; then
+            echo "No changelog markdown files changed."
+            exit 0
+          fi
 
-              while IFS= read -r file; do
-                echo "Uploading $file"
-                rdme changelog upload "$file" --key="$README_API_KEY"
-              done < /tmp/changed_files.txt
-            '
-
+          while IFS= read -r file; do
+            echo "Uploading $file"
+            rdme changelog upload "$file" --key="$README_API_KEY"
+          done < /tmp/changed_files.txt

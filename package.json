@@ -1,0 +1,20 @@
+{
+  "name": "readme-api-documentation",
+  "version": "1.0.0",
+  "description": "Multi-file Open API Specification for API documentation.",
+  "scripts": {
+    "build": "redocly bundle reference/API/openapi.yaml -o _build/openapi.yaml",
+    "test": "redocly lint reference/API/openapi.yaml",
+    "test:rdme": "npm run build && rdme openapi:validate _build/openapi.yaml",
+    "test:all": "npm run test && npm run build",
+    "serve": "redocly preview reference/API/openapi.yaml",
+    "update": "taze major -rw && npm install"
+  },
+  "dependencies": {
+    "@redocly/cli": "^1.19.0",
+    "rdme": "^8.6.6"
+  },
+  "devDependencies": {
+    "taze": "^0.16.3"
+  }
+}

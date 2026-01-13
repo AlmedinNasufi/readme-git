@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: User API
+  description: API for managing users
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+    description: Production server
+  - url: https://api-staging.example.com
+    description: Staging server
+
+paths:
+  /api/v1/users:
+    get:
+      summary: Get Users
+      description: Retrieve a list of all users in the system
+      operationId: getUsers
+      tags:
+        - Users
+      parameters:
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: status
+          in: query
+          description: Filter by user status
+          required: false
+          schema:
+            type: string
+            enum: [active, inactive]
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                data:
+                  - id: "123"
+                    name: "John Doe"
+                    email: "john@example.com"
+                    status: "active"
+                    created_at: "2024-01-15T10:30:00Z"
+                  - id: "456"
+                    name: "Jane Smith"
+                    email: "jane@example.com"
+                    status: "active"
+                    created_at: "2024-01-14T09:20:00Z"
+                pagination:
+                  page: 1
+                  limit: 10
+                  total: 2
+                  total_pages: 1
+        '401':
+          description: Unauthorized - Invalid API key
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+    post:
+      summary: Create User
+      description: Create a new user account in the system
+      operationId: createUser
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              name: "Alice Johnson"
+              email: "alice@example.com"
+              password: "securePassword123"
+              role: "user"
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              example:
+                data:
+                  id: "789"
+                  name: "Alice Johnson"
+                  email: "alice@example.com"
+                  role: "user"
+                  status: "active"
+                  created_at: "2024-01-16T14:45:00Z"
+                message: "User created successfully"
+        '400':
+          description: Bad request - Invalid input data
+        '409':
+          description: Conflict - Email already exists
+        '401':
+          description: Unauthorized - Invalid API key
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+  /api/v1/users/{userId}:
+    patch:
+      summary: Update User
+      description: Update an existing user's information. Only provided fields will be updated.
+      operationId: updateUser
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The unique identifier of the user
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              name: "John Updated"
+              status: "inactive"
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+                  message:
+                    type: string
+              example:
+                data:
+                  id: "123"
+                  name: "John Updated"
+                  email: "john@example.com"
+                  status: "inactive"
+                  role: "user"
+                  updated_at: "2024-01-16T15:30:00Z"
+                message: "User updated successfully"
+        '400':
+          description: Bad request - Invalid input data
+        '404':
+          description: User not found
+        '401':
+          description: Unauthorized - Invalid API key
+        '500':
+          description: Internal server error
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    User:
+      $ref: './schemas/user.yaml'
+    CreateUserRequest:
+      $ref: './schemas/create-user-request.yaml'
+    UpdateUserRequest:
+      $ref: './schemas/update-user-request.yaml'
+    Pagination:
+      $ref: './schemas/pagination.yaml'
+  securitySchemes:
+    bearerAuth:
+      $ref: './security/auth.yaml'

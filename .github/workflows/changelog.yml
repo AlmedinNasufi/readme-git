@@ -2,14 +2,37 @@ name: Sync ReadMe Changelog
 
 on:
   push:
+    branches: [ v1.0 ]
     paths:
-      - "changelog/**"
+      - "changelog/**/*.md"
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: readmeio/rdme@v10
         with:
-          rdme: changelog upload changelog --key=${{ secrets.README_API_KEY }}
+          rdme: --version
+
+      - name: Upload only changed changelog files
+        env:
+          README_API_KEY: ${{ secrets.README_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" \
+            | grep '^changelog/.*\.md$' > /tmp/changed_files.txt || true
+
+          if [ ! -s /tmp/changed_files.txt ]; then
+            echo "No changelog markdown files changed."
+            exit 0
+          fi
+
+          while IFS= read -r file; do
+            echo "Uploading $file"
+            rdme changelog upload "$file" --key="$README_API_KEY"
+          done < /tmp/changed_files.txt

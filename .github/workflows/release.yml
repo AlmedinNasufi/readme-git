@@ -11,7 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Upload OpenAPI to ReadMe
+      - name: Upload OpenAPI spec
         uses: readmeio/rdme@v10
         with:
-          rdme: openapi upload docs/reference/API/openapi.yaml --key=${{ secrets.README_API_KEY }}
+          rdme: openapi upload docs/security/openapi.yaml --key=${{ secrets.README_API_KEY }}
+

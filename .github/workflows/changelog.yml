@@ -1,0 +1,15 @@
+name: Sync ReadMe Changelog
+
+on:
+  push:
+    paths:
+      - "changelog/**"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: readmeio/rdme@v10
+        with:
+          rdme: changelog upload changelog --key=${{ secrets.README_API_KEY }}
